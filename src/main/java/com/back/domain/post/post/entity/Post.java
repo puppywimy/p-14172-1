@@ -20,20 +20,20 @@ import static jakarta.persistence.FetchType.LAZY;
 @Getter
 @NoArgsConstructor
 public class Post extends BaseEntity {
-    private String title;
-    private String content;
+    private String subject;
+    private String body;
 
     @OneToMany(mappedBy = "post", fetch = LAZY, cascade = {PERSIST, REMOVE}, orphanRemoval = true)
     private List<PostComment> comments = new ArrayList<>();
 
-    public Post(String title, String content) {
-        this.title = title;
-        this.content = content;
+    public Post(String subject, String body) {
+        this.subject = subject;
+        this.body = body;
     }
 
-    public void modify(String title, String content) {
-        this.title = title;
-        this.content = content;
+    public void modify(String subject, String body) {
+        this.subject = subject;
+        this.body = body;
     }
 
     public PostComment addComment(String content) {
