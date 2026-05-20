@@ -29,11 +29,9 @@ public class ApiV1PostController {
     public PostDto getItem(@PathVariable int id) {
         Optional<Post> optionalPost = postService.findById(id);
 
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            return new PostDto(post);
-        }
+        if (optionalPost.isEmpty()) return null;
+        Post post = optionalPost.get();
 
-        return null;
+        return new PostDto(post);
     }
 }
