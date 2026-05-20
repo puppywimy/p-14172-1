@@ -36,7 +36,7 @@ public class ApiV1PostController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public RsData deleteItem(@PathVariable int id) {
+    public RsData<PostDto> deleteItem(@PathVariable int id) {
         Optional<Post> optionalPost = postService.findById(id);
 
         if (optionalPost.isEmpty()) return null;
@@ -44,7 +44,7 @@ public class ApiV1PostController {
 
         postService.delete(post);
 
-        return new RsData(
+        return new RsData<>(
                 "200-1",
                 "%d번 글이 삭제되었습니다.".formatted(post.getId()),
                 new PostDto(post)
