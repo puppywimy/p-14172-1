@@ -1,5 +1,6 @@
 package com.back.domain.post.post.controller;
 
+import com.back.domain.post.post.dto.PostDto;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +19,19 @@ public class ApiV1PostController {
     private final PostService postService;
 
     @GetMapping
-    public List<Post> getItems() {
-        List<Post> items = postService.findAll();
+    public List<PostDto> getItems() {
+        List<Post> posts = postService.findAll();
 
-        return items;
+        return posts.stream().map(PostDto::new).toList();
     }
 
     @GetMapping("/{id}")
-    public Post getItem(@PathVariable int id) {
+    public PostDto getItem(@PathVariable int id) {
         Optional<Post> optionalPost = postService.findById(id);
 
         if (optionalPost.isPresent()) {
             Post post = optionalPost.get();
-            return post;
+            return new PostDto(post);
         }
 
         return null;
