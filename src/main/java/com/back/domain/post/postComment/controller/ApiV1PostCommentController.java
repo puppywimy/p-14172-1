@@ -4,11 +4,11 @@ import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import com.back.domain.post.postComment.dto.PostCommentDto;
 import com.back.domain.post.postComment.entity.PostComment;
+import com.back.global.rsData.RsData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,7 +43,7 @@ public class ApiV1PostCommentController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public LinkedHashMap<String, Object> deleteItem(@PathVariable int postId, @PathVariable int id) {
+    public RsData deleteItem(@PathVariable int postId, @PathVariable int id) {
         Optional<Post> optionalPost = postService.findById(postId);
         if (optionalPost.isEmpty()) return null;
         Post post = optionalPost.get();
@@ -54,10 +54,9 @@ public class ApiV1PostCommentController {
 
         if (!postService.deleteComment(post, comment)) return null;
 
-        LinkedHashMap<String, Object> rsData = new LinkedHashMap<>();
-        rsData.put("resultCode", "200-1");
-        rsData.put("msg", "%d번 댓글이 삭제되었습니다.".formatted(comment.getId()));
-
-        return rsData;
+        return new RsData(
+                "200-1",
+                "%d번 댓글이 삭제되었습니다.".formatted(comment.getId())
+        );
     }
 }
