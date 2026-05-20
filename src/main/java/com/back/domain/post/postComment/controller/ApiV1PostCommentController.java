@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +43,7 @@ public class ApiV1PostCommentController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public String deleteItem(@PathVariable int postId, @PathVariable int id) {
+    public LinkedHashMap<String, Object> deleteItem(@PathVariable int postId, @PathVariable int id) {
         Optional<Post> optionalPost = postService.findById(postId);
         if (optionalPost.isEmpty()) return null;
         Post post = optionalPost.get();
@@ -53,6 +54,10 @@ public class ApiV1PostCommentController {
 
         if (!postService.deleteComment(post, comment)) return null;
 
-        return "%d번 댓글을 삭제했습니다.".formatted(id);
+        LinkedHashMap<String, Object> rsData = new LinkedHashMap<>();
+        rsData.put("resultCode", "200-1");
+        rsData.put("msg", "%d번 댓글이 삭제되었습니다.".formatted(comment.getId()));
+
+        return rsData;
     }
 }
