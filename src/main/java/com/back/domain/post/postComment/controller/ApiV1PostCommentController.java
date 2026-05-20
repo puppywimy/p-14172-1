@@ -5,10 +5,7 @@ import com.back.domain.post.post.service.PostService;
 import com.back.domain.post.postComment.dto.PostCommentDto;
 import com.back.domain.post.postComment.entity.PostComment;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,5 +37,20 @@ public class ApiV1PostCommentController {
         PostComment comment = optionalComment.get();
 
         return new PostCommentDto(comment);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteItem(@PathVariable int postId, @PathVariable int id) {
+        Optional<Post> optionalPost = postService.findById(postId);
+        if (optionalPost.isEmpty()) return null;
+        Post post = optionalPost.get();
+
+        Optional<PostComment> optionalComment = post.findCommentById(id);
+        if (optionalComment.isEmpty()) return null;
+        PostComment comment = optionalComment.get();
+
+        if (!postService.deleteComment(post, comment)) return null;
+
+        return "%d번 댓글을 삭제했습니다.".formatted(id);
     }
 }
