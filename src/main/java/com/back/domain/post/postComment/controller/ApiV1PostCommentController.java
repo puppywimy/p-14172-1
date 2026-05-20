@@ -43,7 +43,7 @@ public class ApiV1PostCommentController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public RsData<PostCommentDto> deleteItem(@PathVariable int postId, @PathVariable int id) {
+    public RsData<Void> deleteItem(@PathVariable int postId, @PathVariable int id) {
         Optional<Post> optionalPost = postService.findById(postId);
         if (optionalPost.isEmpty()) return null;
         Post post = optionalPost.get();
@@ -56,8 +56,7 @@ public class ApiV1PostCommentController {
 
         return new RsData<>(
                 "200-1",
-                "%d번 댓글이 삭제되었습니다.".formatted(comment.getId()),
-                new PostCommentDto(comment)
+                "%d번 댓글이 삭제되었습니다.".formatted(comment.getId())
         );
     }
 }
