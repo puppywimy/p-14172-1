@@ -4,6 +4,10 @@ import com.back.domain.post.post.dto.PostDto;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import com.back.global.rsData.RsData;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -18,14 +22,14 @@ public class ApiV1PostController {
     private final PostService postService;
 
     @GetMapping
-    public List<PostDto> getItems() {
+    public List<PostDto> list() {
         List<Post> posts = postService.findAll();
 
         return posts.stream().map(PostDto::new).toList();
     }
 
     @GetMapping("/{id}")
-    public PostDto getItem(@PathVariable int id) {
+    public PostDto read(@PathVariable int id) {
         Optional<Post> optionalPost = postService.findById(id);
 
         if (optionalPost.isEmpty()) return null;
@@ -34,9 +38,25 @@ public class ApiV1PostController {
         return new PostDto(post);
     }
 
+    public record PostInputSerializer(
+            @NotBlank
+            @Size(min = 2, max = 20)
+            String title,
+            @NotBlank
+            @Size(min = 2, max = 5000)
+            String content
+    ) {
+    }
+
+    @PostMapping
+    public PostDto create(@RequestBody @Valid PostInputSerializer serializer) {
+        Post post = postService.write(serializer.title, serializer.content);
+        return new PostDto(post);
+    }
+
     @DeleteMapping("/{id}")
     @Transactional
-    public RsData<PostDto> deleteItem(@PathVariable int id) {
+    public RsData<PostDto> delete(@PathVariable int id) {
         Optional<Post> optionalPost = postService.findById(id);
 
         if (optionalPost.isEmpty()) return null;
