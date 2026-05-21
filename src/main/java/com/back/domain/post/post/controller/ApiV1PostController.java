@@ -47,10 +47,23 @@ public class ApiV1PostController {
     ) {
     }
 
+    public record PostCreateResBody(
+            long totalCount,
+            PostDto post
+    ) {
+    }
+
     @PostMapping
-    public PostDto create(@RequestBody @Valid PostCreateReqBody body) {
+    public RsData<PostCreateResBody> create(@RequestBody @Valid PostCreateReqBody body) {
         Post post = postService.write(body.title, body.content);
-        return new PostDto(post);
+        return new RsData<>(
+                "200-1",
+                "%d번 글이 작성되었습니다.".formatted(post.getId()),
+                new PostCreateResBody(
+                        postService.count(),
+                        new PostDto(post)
+                )
+        );
     }
 
     @DeleteMapping("/{id}")
