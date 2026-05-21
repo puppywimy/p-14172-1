@@ -32,6 +32,10 @@ public class PostService {
         return postRepository.findAll();
     }
 
+    public Optional<Post> findlatest() {
+        return postRepository.findFirstByOrderByIdDesc();
+    }
+
     public void delete(Post post) {
         postRepository.delete(post);
     }
