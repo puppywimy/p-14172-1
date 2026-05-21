@@ -56,13 +56,16 @@ public class ApiV1PostController {
     }
 
     @PostMapping
+    @Transactional
     public RsData<PostCreateResBody> create(@RequestBody @Valid PostCreateReqBody body) {
         Post post = postService.write(body.title, body.content);
+        long count = postService.count();
+
         return new RsData<>(
                 "201-1",
                 "%d번 글이 작성되었습니다.".formatted(post.getId()),
                 new PostCreateResBody(
-                        postService.count(),
+                        count,
                         new PostDto(post)
                 )
         );
