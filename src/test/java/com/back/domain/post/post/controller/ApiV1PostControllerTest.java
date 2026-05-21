@@ -25,7 +25,7 @@ public class ApiV1PostControllerTest {
     private MockMvc mvc;
 
     @Test
-    @DisplayName("글 쓰기")
+    @DisplayName("글 작성")
     void t1() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
