@@ -7,7 +7,6 @@ import com.back.global.rsData.RsData;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +37,7 @@ public class ApiV1PostController {
         return new PostDto(post);
     }
 
-    public record PostInputSerializer(
+    public record PostCreateReqBody(
             @NotBlank
             @Size(min = 2, max = 20)
             String title,
@@ -49,8 +48,8 @@ public class ApiV1PostController {
     }
 
     @PostMapping
-    public PostDto create(@RequestBody @Valid PostInputSerializer serializer) {
-        Post post = postService.write(serializer.title, serializer.content);
+    public PostDto create(@RequestBody @Valid PostCreateReqBody body) {
+        Post post = postService.write(body.title, body.content);
         return new PostDto(post);
     }
 
