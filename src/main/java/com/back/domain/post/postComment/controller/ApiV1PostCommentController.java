@@ -5,6 +5,7 @@ import com.back.domain.post.post.service.PostService;
 import com.back.domain.post.postComment.dto.PostCommentDto;
 import com.back.domain.post.postComment.entity.PostComment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class ApiV1PostCommentController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public String deleteItem(@PathVariable int postId, @PathVariable int id) {
         Optional<Post> optionalPost = postService.findById(postId);
         if (optionalPost.isEmpty()) return null;
