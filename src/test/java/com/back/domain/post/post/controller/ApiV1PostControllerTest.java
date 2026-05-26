@@ -33,7 +33,7 @@ public class ApiV1PostControllerTest {
 
 
     @Test
-    @DisplayName("글 작성")
+    @DisplayName("POST /posts")
     void t1() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
@@ -54,7 +54,7 @@ public class ApiV1PostControllerTest {
                 .andExpect(handler().methodName("create"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.resultCode").value("201-1"))
-                .andExpect(jsonPath("$.msg").value("%d번 글이 작성되었습니다.".formatted(post.getId())))
+                .andExpect(jsonPath("$.msg").value("%d번 글이 생성되었습니다.".formatted(post.getId())))
                 .andExpect(jsonPath("$.data.id").value(post.getId()))
                 .andExpect(jsonPath("$.data.createdAt").value(Matchers.startsWith(post.getCreatedAt().toString().substring(0, 20))))
                 .andExpect(jsonPath("$.data.updatedAt").value(Matchers.startsWith(post.getUpdatedAt().toString().substring(0, 20))))
@@ -63,8 +63,8 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 작성, without title")
-    void t7() throws Exception {
+    @DisplayName("POST /posts - Blank Title")
+    void t2() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
@@ -90,8 +90,8 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 작성, without content")
-    void t8() throws Exception {
+    @DisplayName("POST /posts - Blank Content")
+    void t3() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
@@ -117,8 +117,8 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 작성, with wrong json syntax")
-    void t9() throws Exception {
+    @DisplayName("POST /posts - Invalid JSON Syntax")
+    void t4() throws Exception {
 
         String wrongJsonBody = """
                 {
@@ -142,10 +142,77 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.msg").value("요청 본문이 올바르지 않습니다.".stripIndent().trim()));
     }
 
+    @Test
+    @DisplayName("GET /posts")
+    void t5() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts")
+                )
+                .andDo(print());
+
+        List<Post> posts = postService.findAll();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("list"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(posts.size()));
+
+        for (int i = 0; i < posts.size(); i++) {
+            Post post = posts.get(i);
+            resultActions
+                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(post.getId()))
+                    .andExpect(jsonPath("$[%d].createdAt".formatted(i)).value(Matchers.startsWith(post.getCreatedAt().toString().substring(0, 20))))
+                    .andExpect(jsonPath("$[%d].updatedAt".formatted(i)).value(Matchers.startsWith(post.getUpdatedAt().toString().substring(0, 20))))
+                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(post.getTitle()))
+                    .andExpect(jsonPath("$[%d].content".formatted(i)).value(post.getContent()));
+        }
+    }
 
     @Test
-    @DisplayName("글 수정")
-    void t2() throws Exception {
+    @DisplayName("GET /posts/1")
+    void t6() throws Exception {
+        final int id = 1;
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts/%d".formatted(id))
+                ).andDo(print());
+
+        Post post = postService.findById(id).orElseThrow();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("read"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(post.getId()))
+                .andExpect(jsonPath("$.createdAt").value(Matchers.startsWith(post.getCreatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.updatedAt").value(Matchers.startsWith(post.getUpdatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.title").value(post.getTitle()))
+                .andExpect(jsonPath("$.content").value(post.getContent()));
+    }
+
+    @Test
+    @DisplayName("GET /posts/2147483647 - 404")
+    void t7() throws Exception {
+        int id = Integer.MAX_VALUE;
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts/" + id)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("read"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("PUT /posts/1")
+    void t8() throws Exception {
         final int id = 1;
 
         ResultActions resultActions = mvc
@@ -176,8 +243,8 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 삭제")
-    void t3() throws Exception {
+    @DisplayName("DELETE /posts/1")
+    void t9() throws Exception {
         final int id = 1;
 
         ResultActions resultActions = mvc
@@ -191,75 +258,5 @@ public class ApiV1PostControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 글이 삭제되었습니다.".formatted(id)));
-    }
-
-
-    @Test
-    @DisplayName("글 단건조회")
-    void t4() throws Exception {
-        final int id = 1;
-
-        ResultActions resultActions = mvc
-                .perform(
-                        get("/api/v1/posts/%d".formatted(id))
-                ).andDo(print());
-
-        Post post = postService.findById(id).orElseThrow();
-
-        resultActions
-                .andExpect(handler().handlerType(ApiV1PostController.class))
-                .andExpect(handler().methodName("read"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(post.getId()))
-                .andExpect(jsonPath("$.createdAt").value(Matchers.startsWith(post.getCreatedAt().toString().substring(0, 20))))
-                .andExpect(jsonPath("$.updatedAt").value(Matchers.startsWith(post.getUpdatedAt().toString().substring(0, 20))))
-                .andExpect(jsonPath("$.title").value(post.getTitle()))
-                .andExpect(jsonPath("$.content").value(post.getContent()));
-    }
-
-    @Test
-    @DisplayName("글 단건조회, 404")
-    void t6() throws Exception {
-        int id = Integer.MAX_VALUE;
-
-        ResultActions resultActions = mvc
-                .perform(
-                        get("/api/v1/posts/" + id)
-                )
-                .andDo(print());
-
-        resultActions
-                .andExpect(handler().handlerType(ApiV1PostController.class))
-                .andExpect(handler().methodName("read"))
-                .andExpect(status().isNotFound());
-    }
-
-
-    @Test
-    @DisplayName("글 다건조회")
-    void t5() throws Exception {
-        ResultActions resultActions = mvc
-                .perform(
-                        get("/api/v1/posts")
-                )
-                .andDo(print());
-
-        List<Post> posts = postService.findAll();
-
-        resultActions
-                .andExpect(handler().handlerType(ApiV1PostController.class))
-                .andExpect(handler().methodName("list"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(posts.size()));
-
-        for (int i = 0; i < posts.size(); i++) {
-            Post post = posts.get(i);
-            resultActions
-                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(post.getId()))
-                    .andExpect(jsonPath("$[%d].createdAt".formatted(i)).value(Matchers.startsWith(post.getCreatedAt().toString().substring(0, 20))))
-                    .andExpect(jsonPath("$[%d].updatedAt".formatted(i)).value(Matchers.startsWith(post.getUpdatedAt().toString().substring(0, 20))))
-                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(post.getTitle()))
-                    .andExpect(jsonPath("$[%d].content".formatted(i)).value(post.getContent()));
-        }
     }
 }
