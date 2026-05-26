@@ -95,13 +95,12 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 삭제")
     void t3() throws Exception {
-        int id = 1;
+        final int id = 1;
 
         ResultActions resultActions = mvc
                 .perform(
-                        delete("/api/v1/posts/" + id)
-                )
-                .andDo(print());
+                        delete("/api/v1/posts/%d".formatted(id))
+                ).andDo(print());
 
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))
