@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -105,5 +106,38 @@ public class ApiV1PostCommentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 댓글이 삭제되었습니다.".formatted(id)));
+    }
+
+    @Test
+    @DisplayName("PUT /posts/1/comments/1")
+    void t4() throws Exception {
+        final int postId = 1;
+        final int id = 1;
+
+        final ResultActions resultActions = mvc
+                .perform(
+                        put("/api/v1/posts/%d/comments/%d".formatted(postId, id))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "content": "댓글 1-1 new"
+                                        }
+                                        """)
+                )
+                .andDo(print());
+
+        final Post post = postService.findById(postId).orElseThrow();
+        final PostComment comment = post.findCommentById(id).orElseThrow();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostCommentController.class))
+                .andExpect(handler().methodName("update"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 댓글이 수정되었습니다.".formatted(id)))
+                .andExpect(jsonPath("$.data.id").value(comment.getId()))
+                .andExpect(jsonPath("$.data.createdAt").value(Matchers.startsWith(comment.getCreatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.data.updatedAt").value(Matchers.startsWith(comment.getUpdatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.data.content").value(comment.getContent()));
     }
 }
