@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -131,5 +132,32 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.updatedAt").value(Matchers.startsWith(post.getUpdatedAt().toString().substring(0, 20))))
                 .andExpect(jsonPath("$.title").value(post.getTitle()))
                 .andExpect(jsonPath("$.content").value(post.getContent()));
+    }
+
+    @Test
+    @DisplayName("글 다건조회")
+    void t5() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("list"))
+                .andExpect(status().isOk());
+
+        List<Post> posts = postService.findAll();
+
+        for (int i = 0; i < posts.size(); i++) {
+            Post post = posts.get(i);
+            resultActions
+                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(post.getId()))
+                    .andExpect(jsonPath("$[%d].createdAt".formatted(i)).value(Matchers.startsWith(post.getCreatedAt().toString().substring(0, 20))))
+                    .andExpect(jsonPath("$[%d].updatedAt".formatted(i)).value(Matchers.startsWith(post.getUpdatedAt().toString().substring(0, 20))))
+                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(post.getTitle()))
+                    .andExpect(jsonPath("$[%d].content".formatted(i)).value(post.getContent()));
+        }
     }
 }
