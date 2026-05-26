@@ -33,6 +33,38 @@ public class ApiV1PostCommentControllerTest {
     private PostService postService;
 
     @Test
+    @DisplayName("POST /posts/1/comments")
+    void t5() throws Exception {
+        final int postId = 1;
+
+        final ResultActions resultActions = mvc
+                .perform(
+                        post("/api/v1/posts/%d/comments".formatted(postId))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "content": "댓글 1-4"
+                                        }
+                                        """)
+                )
+                .andDo(print());
+
+        final Post post = postService.findById(postId).orElseThrow();
+        final PostComment comment = post.getComments().getLast();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostCommentController.class))
+                .andExpect(handler().methodName("create"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.resultCode").value("201-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 댓글이 생성되었습니다.".formatted(comment.getId())))
+                .andExpect(jsonPath("$.data.id").value(comment.getId()))
+                .andExpect(jsonPath("$.data.createdAt").value(Matchers.startsWith(comment.getCreatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.data.updatedAt").value(Matchers.startsWith(comment.getUpdatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.data.content").value("댓글 1-4"));
+    }
+
+    @Test
     @DisplayName("GET /posts/1/comments")
     void t1() throws Exception {
         final int postId = 1;
