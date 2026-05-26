@@ -113,25 +113,23 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 단건조회")
     void t4() throws Exception {
-        int id = 1;
+        final int id = 1;
 
         ResultActions resultActions = mvc
                 .perform(
-                        get("/api/v1/posts/" + id)
-                )
-                .andDo(print());
+                        get("/api/v1/posts/%d".formatted(id))
+                ).andDo(print());
 
-        resultActions
-                .andExpect(status().isOk());
+        Post post = postService.findById(id).orElseThrow();
 
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))
                 .andExpect(handler().methodName("read"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").isNumber())
-                .andExpect(jsonPath("$.createdAt").isString())
-                .andExpect(jsonPath("$.updatedAt").isString())
-                .andExpect(jsonPath("$.title").isString())
-                .andExpect(jsonPath("$.content").isString());
+                .andExpect(jsonPath("$.id").value(post.getId()))
+                .andExpect(jsonPath("$.createdAt").value(Matchers.startsWith(post.getCreatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.updatedAt").value(Matchers.startsWith(post.getUpdatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.title").value(post.getTitle()))
+                .andExpect(jsonPath("$.content").value(post.getContent()));
     }
 }
