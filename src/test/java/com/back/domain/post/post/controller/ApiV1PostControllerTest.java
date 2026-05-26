@@ -89,6 +89,33 @@ public class ApiV1PostControllerTest {
                         """.stripIndent().trim()));
     }
 
+    @Test
+    @DisplayName("글 작성, without content")
+    void t8() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/v1/posts")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "title": "제목",
+                                            "content": ""
+                                        }
+                                        """)
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("create"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.resultCode").value("400-1"))
+                .andExpect(jsonPath("$.msg").value("""
+                        content-NotBlank-must not be blank
+                        content-Size-size must be between 2 and 5000
+                        """.stripIndent().trim()));
+    }
+
 
     @Test
     @DisplayName("글 수정")
