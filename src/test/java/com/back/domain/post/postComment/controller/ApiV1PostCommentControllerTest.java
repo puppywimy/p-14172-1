@@ -86,4 +86,24 @@ public class ApiV1PostCommentControllerTest {
                 .andExpect(jsonPath("$.updatedAt").value(Matchers.startsWith(comment.getUpdatedAt().toString().substring(0, 20))))
                 .andExpect(jsonPath("$.content").value(comment.getContent()));
     }
+
+    @Test
+    @DisplayName("DELETE /posts/1/comments/1")
+    void t3() throws Exception {
+        final int postId = 1;
+        final int id = 1;
+
+        final ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/v1/posts/%d/comments/%d".formatted(postId, id))
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostCommentController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 댓글이 삭제되었습니다.".formatted(id)));
+    }
 }
