@@ -21,6 +21,30 @@ import java.util.Optional;
 public class ApiV1PostCommentController {
     private final PostService postService;
 
+    public record PostCommentCreateReqBody(
+            @NotBlank
+            @Size(min = 2, max = 100)
+            String content
+    ) {
+    }
+
+    @PostMapping
+    @Transactional
+    public RsData<PostCommentDto> create(
+            @PathVariable int postId,
+            @RequestBody @Valid PostCommentCreateReqBody reqBody
+    ) {
+        Post post = postService.findById(postId).orElseThrow();
+
+        PostComment comment = postService.writeComment(post, reqBody.content);
+
+        return new RsData<>(
+                "201-1",
+                "%d번 댓글이 생성되었습니다.".formatted(comment.getId()),
+                new PostCommentDto(comment)
+        );
+    }
+
     @GetMapping
     public List<PostCommentDto> list(@PathVariable int postId) {
         Optional<Post> optionalPost = postService.findById(postId);
