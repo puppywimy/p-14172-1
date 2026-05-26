@@ -64,9 +64,11 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 수정")
     void t2() throws Exception {
+        final int id = 1;
+
         ResultActions resultActions = mvc
                 .perform(
-                        put("/api/v1/posts/1")
+                        put("/api/v1/posts/%d".formatted(id))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -76,6 +78,18 @@ public class ApiV1PostControllerTest {
                                         """)
                 ).andDo(print());
 
-        resultActions.andExpect(status().isOk());
+        Post post = postService.findById(id).orElseThrow();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("update"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.resultCode").value("200-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 글이 수정되었습니다.".formatted(id)))
+                .andExpect(jsonPath("$.data.id").value(post.getId()))
+                .andExpect(jsonPath("$.data.createdAt").value(Matchers.startsWith(post.getCreatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.data.updatedAt").value(Matchers.startsWith(post.getUpdatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.data.title").value("제목 new"))
+                .andExpect(jsonPath("$.data.content").value("내용 new"));
     }
 }
