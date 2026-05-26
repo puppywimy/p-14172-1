@@ -38,6 +38,8 @@ public class ApiV1PostCommentController {
 
         PostComment comment = postService.writeComment(post, reqBody.content);
 
+        postService.flush();
+
         return new RsData<>(
                 "201-1",
                 "%d번 댓글이 생성되었습니다.".formatted(comment.getId()),
