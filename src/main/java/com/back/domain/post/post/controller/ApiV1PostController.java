@@ -31,11 +31,7 @@ public class ApiV1PostController {
 
     @GetMapping("/{id}")
     public PostDto read(@PathVariable int id) {
-        Optional<Post> optionalPost = postService.findById(id);
-
-        if (optionalPost.isEmpty()) return null;
-        Post post = optionalPost.get();
-
+        Post post = postService.findById(id).orElseThrow();
         return new PostDto(post);
     }
 
