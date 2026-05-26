@@ -49,23 +49,18 @@ public class ApiV1PostCommentController {
 
     @GetMapping
     public List<PostCommentDto> list(@PathVariable int postId) {
-        Optional<Post> optionalPost = postService.findById(postId);
-        if (optionalPost.isEmpty()) return null;
-        Post post = optionalPost.get();
+        Post post = postService.findById(postId).orElseThrow();
 
         List<PostComment> comments = post.getComments();
+
         return comments.stream().map(PostCommentDto::new).toList();
     }
 
     @GetMapping("/{id}")
     public PostCommentDto read(@PathVariable int postId, @PathVariable int id) {
-        Optional<Post> optionalPost = postService.findById(postId);
-        if (optionalPost.isEmpty()) return null;
-        Post post = optionalPost.get();
+        Post post = postService.findById(postId).orElseThrow();
 
-        Optional<PostComment> optionalComment = post.findCommentById(id);
-        if (optionalComment.isEmpty()) return null;
-        PostComment comment = optionalComment.get();
+        PostComment comment = post.findCommentById(id).orElseThrow();
 
         return new PostCommentDto(comment);
     }
@@ -73,13 +68,9 @@ public class ApiV1PostCommentController {
     @DeleteMapping("/{id}")
     @Transactional
     public RsData<Void> delete(@PathVariable int postId, @PathVariable int id) {
-        Optional<Post> optionalPost = postService.findById(postId);
-        if (optionalPost.isEmpty()) return null;
-        Post post = optionalPost.get();
+        Post post = postService.findById(postId).orElseThrow();
 
-        Optional<PostComment> optionalComment = post.findCommentById(id);
-        if (optionalComment.isEmpty()) return null;
-        PostComment comment = optionalComment.get();
+        PostComment comment = post.findCommentById(id).orElseThrow();
 
         if (!postService.deleteComment(post, comment)) return null;
 
@@ -103,13 +94,9 @@ public class ApiV1PostCommentController {
             @PathVariable int id,
             @RequestBody @Valid PostCommentUpdateReqBody body
     ) {
-        Optional<Post> optionalPost = postService.findById(postId);
-        if (optionalPost.isEmpty()) return null;
-        Post post = optionalPost.get();
+        Post post = postService.findById(postId).orElseThrow();
 
-        Optional<PostComment> optionalComment = post.findCommentById(id);
-        if (optionalComment.isEmpty()) return null;
-        PostComment comment = optionalComment.get();
+        PostComment comment = post.findCommentById(id).orElseThrow();
 
         comment.modify(body.content);
 

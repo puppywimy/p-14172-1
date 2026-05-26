@@ -34,7 +34,7 @@ public class ApiV1PostCommentControllerTest {
 
     @Test
     @DisplayName("POST /posts/1/comments")
-    void t5() throws Exception {
+    void t1() throws Exception {
         final int postId = 1;
 
         final ResultActions resultActions = mvc
@@ -66,7 +66,7 @@ public class ApiV1PostCommentControllerTest {
 
     @Test
     @DisplayName("GET /posts/1/comments")
-    void t1() throws Exception {
+    void t2() throws Exception {
         final int postId = 1;
 
         final ResultActions resultActions = mvc
@@ -97,7 +97,7 @@ public class ApiV1PostCommentControllerTest {
 
     @Test
     @DisplayName("GET /posts/1/comments/1")
-    void t2() throws Exception {
+    void t3() throws Exception {
         final int postId = 1;
         final int id = 1;
 
@@ -122,7 +122,7 @@ public class ApiV1PostCommentControllerTest {
 
     @Test
     @DisplayName("DELETE /posts/1/comments/1")
-    void t3() throws Exception {
+    void t4() throws Exception {
         final int postId = 1;
         final int id = 1;
 
@@ -142,7 +142,7 @@ public class ApiV1PostCommentControllerTest {
 
     @Test
     @DisplayName("PUT /posts/1/comments/1")
-    void t4() throws Exception {
+    void t5() throws Exception {
         final int postId = 1;
         final int id = 1;
 
