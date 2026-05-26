@@ -61,4 +61,29 @@ public class ApiV1PostCommentControllerTest {
                     .andExpect(jsonPath("$[%d].content".formatted(i)).value(comment.getContent()));
         }
     }
+
+    @Test
+    @DisplayName("GET /posts/1/comments/1")
+    void t2() throws Exception {
+        final int postId = 1;
+        final int id = 1;
+
+        final ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts/%d/comments/%d".formatted(postId, id))
+                )
+                .andDo(print());
+
+        final Post post = postService.findById(postId).orElseThrow();
+        final PostComment comment = post.findCommentById(id).orElseThrow();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostCommentController.class))
+                .andExpect(handler().methodName("read"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(comment.getId()))
+                .andExpect(jsonPath("$.createdAt").value(Matchers.startsWith(comment.getCreatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.updatedAt").value(Matchers.startsWith(comment.getUpdatedAt().toString().substring(0, 20))))
+                .andExpect(jsonPath("$.content").value(comment.getContent()));
+    }
 }
