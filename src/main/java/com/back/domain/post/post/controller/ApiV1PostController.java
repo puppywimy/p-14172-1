@@ -3,8 +3,6 @@ package com.back.domain.post.post.controller;
 import com.back.domain.post.post.dto.PostDto;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
-import com.back.domain.post.postComment.dto.PostCommentDto;
-import com.back.domain.post.postComment.entity.PostComment;
 import com.back.global.rsData.RsData;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -31,11 +28,7 @@ public class ApiV1PostController {
 
     @GetMapping("/{id}")
     public PostDto read(@PathVariable int id) {
-        Optional<Post> optionalPost = postService.findById(id);
-
-        if (optionalPost.isEmpty()) return null;
-        Post post = optionalPost.get();
-
+        Post post = postService.findById(id).orElseThrow();
         return new PostDto(post);
     }
 
@@ -49,32 +42,20 @@ public class ApiV1PostController {
     ) {
     }
 
-    public record PostCreateResBody(
-            long totalCount,
-            PostDto post
-    ) {
-    }
-
     @PostMapping
-    public RsData<PostCreateResBody> create(@RequestBody @Valid PostCreateReqBody body) {
+    public RsData<PostDto> create(@RequestBody @Valid PostCreateReqBody body) {
         Post post = postService.write(body.title, body.content);
         return new RsData<>(
                 "201-1",
-                "%d번 글이 작성되었습니다.".formatted(post.getId()),
-                new PostCreateResBody(
-                        postService.count(),
-                        new PostDto(post)
-                )
+                "%d번 글이 생성되었습니다.".formatted(post.getId()),
+                new PostDto(post)
         );
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public RsData<PostDto> delete(@PathVariable int id) {
-        Optional<Post> optionalPost = postService.findById(id);
-
-        if (optionalPost.isEmpty()) return null;
-        Post post = optionalPost.get();
+        Post post = postService.findById(id).orElseThrow();
 
         postService.delete(post);
 
@@ -101,9 +82,7 @@ public class ApiV1PostController {
             @PathVariable int id,
             @RequestBody @Valid PostUpdateReqBody body
     ) {
-        Optional<Post> optionalPost = postService.findById(id);
-        if (optionalPost.isEmpty()) return null;
-        Post post = optionalPost.get();
+        Post post = postService.findById(id).orElseThrow();
 
         postService.modify(post, body.title, body.content);
 
