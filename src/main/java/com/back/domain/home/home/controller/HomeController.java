@@ -14,11 +14,10 @@ import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
 @RestController
 @Tag(name = "HomeController", description = "홈 컨트롤러")
-@RequestMapping(produces = TEXT_HTML_VALUE)
 public class HomeController {
     @Operation(summary = "메인 페이지")
     @SneakyThrows
-    @GetMapping
+    @GetMapping(produces = TEXT_HTML_VALUE)
     public String main() {
         InetAddress localHost = getLocalHost();
 
@@ -30,5 +29,22 @@ public class HomeController {
                     <a href="/swagger-ui/index.html">API 문서로 이동</a>
                 </div>
                 """.formatted(localHost.getHostName(), localHost.getHostAddress());
+    }
+
+    @GetMapping(value = "/test/fetchPosts", produces = TEXT_HTML_VALUE)
+    @Operation(summary = "fetchPosts 테스트")
+    public String testFetchPosts() {
+        return """
+                <script>
+                console.clear();
+                
+                fetch("http://localhost:8080/api/v1/posts")
+                  .then(response => response.json())
+                  .then(data => {
+                    console.log(data);
+                    console.log(data[0].title);
+                  });
+                </script>
+                """;
     }
 }
