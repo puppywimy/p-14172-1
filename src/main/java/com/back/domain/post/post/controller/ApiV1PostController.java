@@ -4,6 +4,8 @@ import com.back.domain.post.post.dto.PostDto;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import com.back.global.rsData.RsData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -14,12 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@Tag(name = "ApiV1PostController", description = "API 글 컨트롤러")
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class ApiV1PostController {
     private final PostService postService;
 
     @GetMapping
+    @Operation(summary = "다건 조회")
     public List<PostDto> list() {
         List<Post> posts = postService.findAll();
 
@@ -27,6 +31,7 @@ public class ApiV1PostController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "단건 조회")
     public PostDto read(@PathVariable int id) {
         Post post = postService.findById(id).orElseThrow();
         return new PostDto(post);
@@ -43,6 +48,7 @@ public class ApiV1PostController {
     }
 
     @PostMapping
+    @Operation(summary = "작성")
     public RsData<PostDto> create(@RequestBody @Valid PostCreateReqBody body) {
         Post post = postService.write(body.title, body.content);
         return new RsData<>(
@@ -54,6 +60,7 @@ public class ApiV1PostController {
 
     @DeleteMapping("/{id}")
     @Transactional
+    @Operation(summary = "삭제")
     public RsData<PostDto> delete(@PathVariable int id) {
         Post post = postService.findById(id).orElseThrow();
 
@@ -78,6 +85,7 @@ public class ApiV1PostController {
 
     @PutMapping("/{id}")
     @Transactional
+    @Operation(summary = "수정")
     public RsData<PostDto> update(
             @PathVariable int id,
             @RequestBody @Valid PostUpdateReqBody body
