@@ -2,13 +2,16 @@ package com.back.domain.home.home.controller;
 
 import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.InetAddress;
 
 import static java.net.InetAddress.getLocalHost;
+import static org.springframework.http.MediaType.TEXT_HTML_VALUE;
 
 @RestController
+@RequestMapping(produces = TEXT_HTML_VALUE)
 public class HomeController {
     @SneakyThrows
     @GetMapping
